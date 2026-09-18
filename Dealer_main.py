@@ -25,6 +25,9 @@ def takeDealerTurn(deck, dealerHand, playerHand):
                 print("You may no longer hit, since your hand total exceeds 21.\n")
                 time.sleep(1)
                 break
+        if dealerAction == "quit":
+            return False
+    return True
 
 def takePlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
     updateScreen(dealerHand, playerHand, True)
@@ -68,23 +71,23 @@ print("The cut card is at " + str(cutCard) + " cards. When the shoe reaches or s
 startGameWindow(800, 600, 60)
             
 (shoe, discardPile, dealerHand, playerHand) = resetGame(numDecks)
-
-while True:
-    while len(shoe) > cutCard:
+continuePlaying = True
+while continuePlaying:
+    while len(shoe) > cutCard and continuePlaying:
         dealCards(shoe, dealerHand, playerHand)
         updateScreen(dealerHand, playerHand, True)
         takePlayerTurn(shoe, playerHand, dealerHand)
-        takeDealerTurn(shoe, dealerHand, playerHand)
+        continuePlaying = takeDealerTurn(shoe, dealerHand, playerHand)
         declareRoundWinner(dealerHand, playerHand)
         print("Length of shoe is now: " + str(len(shoe)) + '\n')
         endRound(discardPile, dealerHand, playerHand)
-    print("The shoe has reached or passed the cut card. Do you wish to shuffle and play again? Press y to play again or n to end the game.")
-    response = input()
-    if response == 'n':
-        print("Thank you for playing.")
-        break
-    if response == 'y': (shoe, discardPile, dealerHand, playerHand) = resetGame(numDecks)
-    else: print("Invalid input: " + response)
-
+    if continuePlaying:
+        print("The shoe has reached or passed the cut card. Do you wish to shuffle and play again? Press y to play again or n to end the game.")
+        response = input()
+        if response == 'n': break
+        if response == 'y': (shoe, discardPile, dealerHand, playerHand) = resetGame(numDecks)
+        else: print("Invalid input: " + response)
+print("Thank you for playing.")
+closeGameWindow()
 
     

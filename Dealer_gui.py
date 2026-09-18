@@ -3,6 +3,7 @@ import time
 
 hit_button = None
 stand_button = None
+exit_button = None
 screen = None
 
 def startGameWindow(width, height, framelimit):
@@ -20,6 +21,7 @@ def startGameWindow(width, height, framelimit):
 def drawButtons():
     global hit_button
     global stand_button
+    global exit_button
     global screen
     
     button_width = 120
@@ -41,15 +43,26 @@ def drawButtons():
         button_width,
         button_height
     )
+
+    exit_button = pygame.Rect(
+        screen.get_width() - button_width/2,
+        0,
+        button_width/2,
+        button_height/2
+    )
+
     pygame.draw.rect(screen, (100, 100, 100), hit_button)
     pygame.draw.rect(screen, (100, 100, 100), stand_button)
+    pygame.draw.rect(screen, (200, 000, 000), exit_button)
 
     font = pygame.font.Font(None, 36)
     hit_text = font.render("Hit", True, (255, 255, 255))
     stand_text = font.render("Stand", True, (255, 255, 255))
+    exit_text = font.render("Exit", True, (255, 255, 255))
     screen.blit(hit_text, hit_text.get_rect(center=hit_button.center))
     screen.blit(stand_text, stand_text.get_rect(center=stand_button.center))
-
+    screen.blit(exit_text, exit_text.get_rect(center=exit_button.center))
+    
 def drawCards(dealerHand, playerHand, faceDownMode):
     global screen
     screenWidth = screen.get_width()
@@ -109,6 +122,7 @@ def updateScreen(dealerHand, playerHand, faceDownMode):
 def getDealerAction():
     global hit_button
     global stand_button
+    global exit_button
     
     while True:
         for event in pygame.event.get():
@@ -120,9 +134,12 @@ def getDealerAction():
             if event.type == pygame.MOUSEBUTTONDOWN:
 
                 if hit_button.collidepoint(event.pos):
-                    #print("hit button hit")
                     return "hit"
 
                 if stand_button.collidepoint(event.pos):
-                    #print ("stand button hit")
                     return "stand"
+                
+                if exit_button.collidepoint(event.pos):
+                    print ("exit button hit")
+                    return "quit"
+    
