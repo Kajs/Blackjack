@@ -69,10 +69,6 @@ def drawCard(d):
     del d[0]
     return card
 
-def printDeck(d):
-    for c in d:
-        print(c)
-
 def getCardValue(c):
     if c == "AC" or c == "AD" or c == "AH" or c == "AS":
         return (1, 11)
@@ -103,6 +99,11 @@ def getCardValue(c):
     print("Error: getCardValue didn't find a match for: " + str(c))
     return None
 
+def getHandInfo(hand):
+    handString = ""
+    for card in hand:
+        handString += card + ' '
+    return ("Your hand is " + handString + "with a total of: " + str(getHandTotal(hand)) + '.')
 
 def resetGame(numDecks):
     newShoe = getDeck()
@@ -150,67 +151,6 @@ def getHandTotal(hand):
         numAces -= 1
     return handTotal
 
-def checkForBlackjack(hand):
-    return getHandTotal(hand) == 21
-
-def drawAllCards(deck): #for testing purposes
-    for i in range(len(deck)):
-        card = drawCard(deck)           
-        (minValue, maxValue) = getCardValue(card)      
-        print("You drew " + card + " with min value " + str(minValue) + " and max value " + str(maxValue))
-
-def takePlayerTurn(deck, playerHand, dealerVisibleCard): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
-    print("PLAYERS turn, press s to stay or h to hit. Dealers card is " + dealerVisibleCard + '.')
-    response = ""
-    while response != 's':
-        handTotal = getHandTotal(playerHand)
-        if handTotal > 21:
-            print("You may no longer hit, since your hand total exceeds 21.\n")
-            time.sleep(1)
-            break
-        handString = ""
-        for card in playerHand:
-            handString += card + ' '
-        if handTotal == 21:
-            print("Your hand is " + handString + "with a total of: " + str(handTotal) + '. BLACKJACK!\n')
-            time.sleep(2)
-            break
-        else:
-            print("Your hand is " + handString + "with a total of: " + str(handTotal) + '.')
-        response = input()
-        if response == 'h':
-            card = drawCard(deck)
-            print("Your draw is " + card)
-            playerHand.append(card)
-        if response != 's' and response != 'h':
-            print("Invalid input: " + response)
-
-#def takeDealerTurn(deck, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
-#    print("DEALERS turn, press s to stay or h to hit.")
-#    response = ""
-#    while response != 's':
-#        handTotal = getHandTotal(dealerHand)
-#        if handTotal > 21:
-#            print("You may no longer hit, since your hand total exceeds 21.\n")
-#            time.sleep(1)
-#            break
-#        handString = ""
-#        for card in dealerHand:
-#            handString += card + ' '
-#        if handTotal == 21:
-#            print("Your hand is " + handString + "with a total of: " + str(handTotal) + '. BLACKJACK!\n')
-#            time.sleep(2)
-#            break
-#        else:
-#            print("Your hand is " + handString + "with a total of: " + str(handTotal) + '.')
-#            
-#        response = input()
-#        if response == 'h':
-#            card = drawCard(deck)
-#            print("Your draw is " + card)
-#            dealerHand.append(card)
-#        if response != 's' and response != 'h':
-#            print("Invalid input: " + response)
 def takeHitAction(deck, hand):
     card = drawCard(deck)
     print("Card draw is " + card)

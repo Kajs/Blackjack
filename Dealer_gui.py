@@ -15,7 +15,7 @@ def startGameWindow(width, height, framelimit):
     pygame.font.SysFont("test", 40)    
     
     pygame.display.set_caption("Blackjack")
-    updateScreen([])
+    updateScreen([], [], True)
 
 def drawButtons():
     global hit_button
@@ -24,19 +24,20 @@ def drawButtons():
     
     button_width = 120
     button_height = 50
+    button_displacement = 0.85
     gap = 20
     center_x = screen.get_width() // 2
 
     hit_button = pygame.Rect(
         center_x - button_width - gap // 2,
-        screen.get_height() - 100,
+        screen.get_height() * button_displacement,
         button_width,
         button_height
     )
 
     stand_button = pygame.Rect(
         center_x + gap // 2,
-        screen.get_height() - 100,
+        screen.get_height() * button_displacement,
         button_width,
         button_height
     )
@@ -49,29 +50,61 @@ def drawButtons():
     screen.blit(hit_text, hit_text.get_rect(center=hit_button.center))
     screen.blit(stand_text, stand_text.get_rect(center=stand_button.center))
 
-def drawCards(hand):
+def drawCards(dealerHand, playerHand, faceDownMode):
     global screen
-    center_x = screen.get_width() // 2
-    center_y = screen.get_height() // 2
-    startPos = 350
+    screenWidth = screen.get_width()
+    screenHeight = screen.get_height()
+    dealerCardWidth = 100
+    dealerCardHeight = 145
+    dealerCardHDisplacement = 0.65
+    playerCardWidth = 100
+    playerCardHeight = 145
+    playerCardHDisplacement = 0.2
+    cardDownscaleFactor = 0.9
     
-    for card in hand:
+    while dealerCardWidth * len(dealerHand) > screenWidth:
+        dealerCardWidth = dealerCardWidth * cardDownscaleFactor
+        dealerCardHeight = dealerCardHeight * cardDownscaleFactor
+    while playerCardWidth * len(playerHand) > screenWidth:
+        playerCardWidth = playerCardWidth * cardDownscaleFactor
+        playerCardHeight = playerCardHeight * cardDownscaleFactor
+
+    center_x = screenWidth // 2
+    center_y = screenHeight // 2
+    cardWPos = center_x - (dealerCardWidth/2) * (len(dealerHand) - 1)
+    cardHPos = screenHeight * dealerCardHDisplacement
+    
+    for i in range(len(dealerHand)):
+        card = ""
+        if i == 0 and faceDownMode: card = "FD"
+        else: card = dealerHand[i]
+        
         cardImage = pygame.image.load("Images/Cards/" + card + ".png").convert_alpha()
-        cardImage = pygame.transform.scale(cardImage, (100, 145))
-        #cardRect = cardImage.get_rect(center=(startPos, 350))
-        cardRect = cardImage.get_rect(center=(center_x - 50, 350))
+        cardImage = pygame.transform.scale(cardImage, (dealerCardWidth, dealerCardHeight))
+        cardRect = cardImage.get_rect(center=(cardWPos, cardHPos))
         screen.blit(cardImage, cardRect)
-        center_x += 100
+        cardWPos += dealerCardWidth
+
+    cardWPos = center_x - (playerCardWidth/2) * (len(playerHand) - 1)
+    cardHPos = screenHeight * playerCardHDisplacement
+
+    for card in playerHand:
+        cardImage = pygame.image.load("Images/Cards/" + card + ".png").convert_alpha()
+        cardImage = pygame.transform.scale(cardImage, (playerCardWidth, playerCardHeight))
+        cardRect = cardImage.get_rect(center=(cardWPos, cardHPos))
+        screen.blit(cardImage, cardRect)
+        cardWPos += playerCardWidth
 
 def closeGameWindow():
     pygame.quit()
 
-def updateScreen(hand):
+def updateScreen(dealerHand, playerHand, faceDownMode):
     global screen
     screen.fill("green")
     drawButtons()
-    drawCards(hand)
+    drawCards(dealerHand, playerHand, faceDownMode)
     pygame.display.flip()
+    pygame.event.pump() #temporary potential fix for pygame not updating. This bug is expected to go away, when the player has a gui and the game continually checks for pygame events during the players turn and this can then be deleted.
 
 def getDealerAction():
     global hit_button
@@ -93,8 +126,3 @@ def getDealerAction():
                 if stand_button.collidepoint(event.pos):
                     #print ("stand button hit")
                     return "stand"
-
-#startGameWindow(800, 600, 60)
-#getDealerAction()
-#time.sleep(4)
-#closeGameWindow()
