@@ -5,6 +5,7 @@ hit_button = None
 stand_button = None
 exit_button = None
 screen = None
+loadedImages = {}
 
 def startGameWindow(width, height, framelimit):
     global screen
@@ -65,6 +66,8 @@ def drawButtons():
     
 def drawCards(dealerHand, playerHand, faceDownMode):
     global screen
+    global loadedImages
+    
     screenWidth = screen.get_width()
     screenHeight = screen.get_height()
     dealerCardWidth = 100
@@ -91,9 +94,13 @@ def drawCards(dealerHand, playerHand, faceDownMode):
         card = ""
         if i == 0 and faceDownMode: card = "FD"
         else: card = dealerHand[i]
-        
-        cardImage = pygame.image.load("Images/Cards/" + card + ".png").convert_alpha()
-        cardImage = pygame.transform.scale(cardImage, (dealerCardWidth, dealerCardHeight))
+
+        cardImage = None
+        if card in loadedImages: cardImage = loadedImages[card]
+        else:
+            cardImage = pygame.image.load("Images/Cards/" + card + ".png").convert_alpha()
+            cardImage = pygame.transform.scale(cardImage, (dealerCardWidth, dealerCardHeight))
+            loadedImages[card] = cardImage
         cardRect = cardImage.get_rect(center=(cardWPos, cardHPos))
         screen.blit(cardImage, cardRect)
         cardWPos += dealerCardWidth

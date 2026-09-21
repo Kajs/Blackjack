@@ -4,21 +4,27 @@ import time
 serverAddress = "127.0.0.1"
 serverPort = 5000
 clientSocket = None
+clientActive = False
 
 def startClient(host, port):
     global clientSocket
+    global clientActive
+    
     print("Starting client.")
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientSocket.connect((host, port))
+    clientActive = True
     print("Client ready.")
 
 def closeClient():
     global clientSocket
+    global clientActive
 
     if clientSocket == None:
         print("Error: client has not been started.")
     else:
         clientSocket.close()
+        clientActive = False
         print("Client has been closed.")
 
 def getMessage():
@@ -73,7 +79,7 @@ def parseMessage(message):
 
 
 startClient(serverAddress, serverPort)
-while True: getMessage()
+while clientActive: getMessage()
 #getMessage()
 #sendMessage("Hello from Player 1.")
 #closeClient()
