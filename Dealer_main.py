@@ -1,6 +1,9 @@
 from Dealer_game import *
 from Dealer_gui import *
+from Dealer_server import *
 import time
+serverAddress = "127.0.0.1"
+serverPort = 5000
     
 
 def takeDealerTurn(deck, dealerHand, playerHand):
@@ -11,8 +14,9 @@ def takeDealerTurn(deck, dealerHand, playerHand):
     while dealerAction != "stand":
         handInfo = getHandInfo(dealerHand)
         handTotal = getHandTotal(dealerHand)
-        if handTotal == 21:            
-            print(handInfo + ' BLACKJACK!\n')
+        if handTotal == 21:
+            if len(dealerHand) == 2: print(handInfo + " BLACKJACK!\n")
+            else: print(handInfo + " TWENTY ONE!\n")
             time.sleep(2)
             break
         else: print(handInfo)
@@ -33,6 +37,37 @@ def takePlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/i
     updateScreen(dealerHand, playerHand, True)
     dealerVisibleCard = dealerHand[1]
     print("PLAYERS turn, press s to stay or h to hit. Dealers card is " + dealerVisibleCard + '.')
+    actionHit = "ACTION: HIT"
+    actionStay = "ACTION: STAY"
+
+    response = ""
+    while response != actionStay:
+        handTotal = getHandTotal(playerHand)
+        handInfo = getHandInfo(playerHand)
+        if handTotal > 21:
+            print("You may no longer hit, since your hand total exceeds 21.\n")
+            time.sleep(1)
+            break
+        if handTotal == 21:
+            if len(playerHand) == 2: print(handInfo + " BLACKJACK!\n")
+            else: print(handInfo + " TWENTY ONE!\n")
+            time.sleep(2)
+            break
+        else: print(handInfo)
+        
+        response = requestAction(0)
+        if response == actionHit:
+            card = drawCard(deck)
+            playerHand.append(card)
+            updateScreen(dealerHand, playerHand, True)
+            print("Your draw is " + card)
+        if response != actionStay and response != actionHit:
+            print("Invalid action: " + response)
+
+def takeLocalPlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
+    updateScreen(dealerHand, playerHand, True)
+    dealerVisibleCard = dealerHand[1]
+    print("PLAYERS turn, press s to stay or h to hit. Dealers card is " + dealerVisibleCard + '.')
     response = ""
     
     while response != 's':
@@ -43,7 +78,8 @@ def takePlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/i
             time.sleep(1)
             break
         if handTotal == 21:
-            print(handInfo + ' BLACKJACK!\n')
+            if len(playerHand) == 2: print(handInfo + " BLACKJACK!\n")
+            else: print(handInfo + " TWENTY ONE!\n")
             time.sleep(2)
             break
         else: print(handInfo)
@@ -69,7 +105,10 @@ print("The shoe contains " + str(numDecks) + " deck(s), for a total of " + str(n
 print("The cut card is at " + str(cutCard) + " cards. When the shoe reaches or surpasses the cut card, the shoe will either be shuffled or the game will end, at the end of the round.\n")
 
 startGameWindow(800, 600, 60)
-            
+
+startServer(serverAddress, serverPort)
+acceptConnection()
+
 (shoe, discardPile, dealerHand, playerHand) = resetGame(numDecks)
 continuePlaying = True
 while continuePlaying:
@@ -89,5 +128,8 @@ while continuePlaying:
         else: print("Invalid input: " + response)
 print("Thank you for playing.")
 closeGameWindow()
+requestClose(0)
+closeConnection(0)
+closeServer()
 
     
