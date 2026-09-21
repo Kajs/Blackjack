@@ -1,30 +1,23 @@
 import socket
 import time
 
-serverAddress = "127.0.0.1"
-serverPort = 5000
 clientSocket = None
-clientActive = False
 
 def startClient(host, port):
     global clientSocket
-    global clientActive
     
     print("Starting client.")
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientSocket.connect((host, port))
-    clientActive = True
     print("Client ready.")
 
 def closeClient():
     global clientSocket
-    global clientActive
 
     if clientSocket == None:
         print("Error: client has not been started.")
     else:
         clientSocket.close()
-        clientActive = False
         print("Client has been closed.")
 
 def getMessage():
@@ -32,11 +25,12 @@ def getMessage():
     
     if clientSocket == None:
         print("Error: Client has not been started.")
+        return False
     else:
         message = clientSocket.recv(1024)
         decodedMessage = message.decode()
-        print("Dealer says:", decodedMessage)
-        parseMessage(decodedMessage)
+        #print("Dealer says:", decodedMessage)
+        return parseMessage(decodedMessage)
 
 def sendMessage(message):
     global clientSocket
@@ -52,8 +46,8 @@ def getPlayerAction():
             print ("Sending HIT")
             return "HIT"
         if response == "s":
-            print ("Sending STAY")
-            return "STAY"
+            print ("Sending STAND")
+            return "STAND"
         else: print("ERROR: invalid input: " + response)
 
 def parseMessage(message):
@@ -69,17 +63,11 @@ def parseMessage(message):
             if messageValue == "ACTION":
                 action = getPlayerAction()
                 if action == "HIT": sendMessage("ACTION: HIT")
-                elif action == "STAY": sendMessage("ACTION: STAY")
+                elif action == "STAND": sendMessage("ACTION: STAND")
                 else: print("ERROR: invalid action: " + action)
-            if messageValue == "CLOSE": closeClient()
+                return True
+            if messageValue == "CLOSE":
+                closeClient()
+                return False
     else: print("Error: invalid format in message:", message)
-
-
-
-
-
-startClient(serverAddress, serverPort)
-while clientActive: getMessage()
-#getMessage()
-#sendMessage("Hello from Player 1.")
-#closeClient()
+    return True

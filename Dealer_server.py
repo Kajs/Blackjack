@@ -4,7 +4,7 @@ serverAddress = "127.0.0.1"
 serverPort = 5000
 serverSocket = None
 clients = []
-validActions = ["ACTION: HIT", "ACTION: STAY"]
+validActions = ["ACTION: HIT", "ACTION: STAND"]
 playerNumber = 0
 
 def getPlayerName(playerNumber):
@@ -39,7 +39,7 @@ def acceptConnection():
         print("Waiting for player to connect...")
         connection, address = serverSocket.accept()
         playerNumber += 1
-        print(getPlayerName(playerNumber) + " connected:", address)
+        print(getPlayerName(playerNumber) + " connected:", address, '\n')
         clients.append((playerNumber, connection, address))
 
 def closeConnection(playerIndex):
@@ -61,7 +61,7 @@ def getMessage(playerIndex):
         playerNumber, connection, address = clients[playerIndex]
         message = connection.recv(1024)
         decodedMessage = message.decode()
-        print(getPlayerName(playerNumber) + " says:", decodedMessage)
+        #print(getPlayerName(playerNumber) + " says:", decodedMessage)
         return decodedMessage
     else: print("Error: playerIndex exceeds number of clients.")        
 

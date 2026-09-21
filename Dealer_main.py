@@ -15,8 +15,8 @@ def takeDealerTurn(deck, dealerHand, playerHand):
         handInfo = getHandInfo(dealerHand)
         handTotal = getHandTotal(dealerHand)
         if handTotal == 21:
-            if len(dealerHand) == 2: print(handInfo + " BLACKJACK!\n")
-            else: print(handInfo + " TWENTY ONE!\n")
+            if len(dealerHand) == 2: print(handInfo + " BLACKJACK!")
+            else: print(handInfo + " TWENTY ONE!")
             time.sleep(2)
             break
         else: print(handInfo)
@@ -31,26 +31,27 @@ def takeDealerTurn(deck, dealerHand, playerHand):
                 break
         if dealerAction == "quit":
             return False
+    print('')
     return True
 
 def takePlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
     updateScreen(dealerHand, playerHand, True)
     dealerVisibleCard = dealerHand[1]
-    print("PLAYERS turn, press s to stay or h to hit. Dealers card is " + dealerVisibleCard + '.')
+    print("PLAYERS turn, press s to stand or h to hit. Dealers card is " + dealerVisibleCard + '.')
     actionHit = "ACTION: HIT"
-    actionStay = "ACTION: STAY"
+    actionStand = "ACTION: STAND"
 
     response = ""
-    while response != actionStay:
+    while response != actionStand:
         handTotal = getHandTotal(playerHand)
         handInfo = getHandInfo(playerHand)
         if handTotal > 21:
-            print("You may no longer hit, since your hand total exceeds 21.\n")
+            print("You may no longer hit, since your hand total exceeds 21.")
             time.sleep(1)
             break
         if handTotal == 21:
-            if len(playerHand) == 2: print(handInfo + " BLACKJACK!\n")
-            else: print(handInfo + " TWENTY ONE!\n")
+            if len(playerHand) == 2: print(handInfo + " BLACKJACK!")
+            else: print(handInfo + " TWENTY ONE!")
             time.sleep(2)
             break
         else: print(handInfo)
@@ -61,37 +62,9 @@ def takePlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/i
             playerHand.append(card)
             updateScreen(dealerHand, playerHand, True)
             print("Your draw is " + card)
-        if response != actionStay and response != actionHit:
+        if response != actionStand and response != actionHit:
             print("Invalid action: " + response)
-
-def takeLocalPlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
-    updateScreen(dealerHand, playerHand, True)
-    dealerVisibleCard = dealerHand[1]
-    print("PLAYERS turn, press s to stay or h to hit. Dealers card is " + dealerVisibleCard + '.')
-    response = ""
-    
-    while response != 's':
-        handTotal = getHandTotal(playerHand)
-        handInfo = getHandInfo(playerHand)
-        if handTotal > 21:
-            print("You may no longer hit, since your hand total exceeds 21.\n")
-            time.sleep(1)
-            break
-        if handTotal == 21:
-            if len(playerHand) == 2: print(handInfo + " BLACKJACK!\n")
-            else: print(handInfo + " TWENTY ONE!\n")
-            time.sleep(2)
-            break
-        else: print(handInfo)
-        
-        response = input()
-        if response == 'h':
-            card = drawCard(deck)
-            playerHand.append(card)
-            updateScreen(dealerHand, playerHand, True)
-            print("Your draw is " + card)
-        if response != 's' and response != 'h':
-            print("Invalid input: " + response)
+    print('')
 
 welcomeString = "Welcome to the blackjack table!\n\n"
 welcomeString += "The second card letter means C for Clubs, D for Diamonds, H for Hearts and S for Spades, "
@@ -104,7 +77,7 @@ cutCard = 52
 print("The shoe contains " + str(numDecks) + " deck(s), for a total of " + str(numDecks*52) + " cards.\n")
 print("The cut card is at " + str(cutCard) + " cards. When the shoe reaches or surpasses the cut card, the shoe will either be shuffled or the game will end, at the end of the round.\n")
 
-startGameWindow(800, 600, 60)
+startGameWindow(400, 600, 60)
 
 startServer(serverAddress, serverPort)
 acceptConnection()
