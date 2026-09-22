@@ -114,6 +114,11 @@ def handToString(hand):
             handString += ','
     return handString
 
+def getFacedownHand(hand):
+    fdHand = ["FD"]
+    fdHand.append(hand[1])
+    return fdHand
+
 def resetGame(numDecks):
     newShoe = getDeck()
     shuffleDeck(newShoe)

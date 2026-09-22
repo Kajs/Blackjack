@@ -131,12 +131,13 @@ def updateScreen(dealerHand, playerHand, faceDownMode):
     drawCards(dealerHand, playerHand, faceDownMode)
     pygame.display.flip()
 
-def getDealerAction():
+def getDealerAction(dealerHand, playerHand):
     global hit_button
     global stand_button
     global exit_button
     
     while True:
+        updateScreen(dealerHand, playerHand, False)
         for event in pygame.event.get():
             # Close the window
             if event.type == pygame.QUIT:

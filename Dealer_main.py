@@ -21,7 +21,7 @@ def takeDealerTurn(deck, dealerHand, playerHand):
             break
         else: print(handInfo)
         
-        dealerAction = getDealerAction()
+        dealerAction = getDealerAction(dealerHand, playerHand)
         if dealerAction == "hit":
             handTotal = takeHitAction(deck, dealerHand)
             updateScreen(dealerHand, playerHand, False)
@@ -36,11 +36,12 @@ def takeDealerTurn(deck, dealerHand, playerHand):
 
 def takePlayerTurn(playerNumer, deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
     updateScreen(dealerHand, playerHand, True)
+    updatePlayerBoard(playerNumber, handToString(dealerHand), handToString(playerHand)) 
     dealerVisibleCard = dealerHand[1]
     print("PLAYERS turn, press s to stand or h to hit. Dealers card is " + dealerVisibleCard + '.')
     actionHit = "ACTION: HIT"
     actionStand = "ACTION: STAND"
-
+    
     response = ""
     while response != actionStand:
         handTotal = getHandTotal(playerHand)
@@ -90,7 +91,7 @@ while continuePlaying:
     while len(shoe) > cutCard and continuePlaying:
         dealCards(shoe, dealerHand, playerHand)
         updateScreen(dealerHand, playerHand, True)
-        takePlayerTurn(playerNumber, shoe, playerHand, dealerHand)
+        takePlayerTurn(playerNumber, shoe, playerHand, getFacedownHand(dealerHand))      
         continuePlaying = takeDealerTurn(shoe, dealerHand, playerHand)
         declareRoundWinner(dealerHand, playerHand)
         print("Length of shoe is now: " + str(len(shoe)) + '\n')
