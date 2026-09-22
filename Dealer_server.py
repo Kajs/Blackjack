@@ -3,13 +3,42 @@ import socket
 serverAddress = "127.0.0.1"
 serverPort = 5000
 serverSocket = None
-clients = []
+clients = {}
 validActions = ["ACTION: HIT", "ACTION: STAND"]
 playerNumber = 0
 
-def getPlayerName(playerNumber):
-    playerName = "Player " + str(playerNumber)
+def getMessage(playerNumber):
+    global serverSocket
+    global clients  
+
+    if playerNumber in clients:
+        connection, address = clients[playerNumber]
+        message = connection.recv(1024)
+        decodedMessage = message.decode()
+        #print(playerNumberToName(playerNumber) + " says:", decodedMessage)
+        return decodedMessage
+    else: print("Error: playerNumber does not exist in clients.")        
+
+def sendMessage(playerNumber, message):
+    global clients
+
+    if playerNumber in clients:
+        connection, address = clients[playerNumber]
+        connection.sendall(message.encode())
+    else: print("Error: playerNumber does not exist in clients.") 
+
+def playerNumberToName(playerNumber):
+    playerName = "PLAYER" + str(playerNumber)
     return playerName
+
+def sendPlayerName(playerNumber):
+    global clients
+
+    if playerNumber in clients:
+        playerName = playerNumberToName(playerNumber)
+        message = "YOURNAMEIS: " + playerName
+        sendMessage(playerNumber, message)
+    else: print("Error: playerNumber does not exist in clients.") 
 
 def startServer(host, port):
     global serverSocket
@@ -39,52 +68,39 @@ def acceptConnection():
         print("Waiting for player to connect...")
         connection, address = serverSocket.accept()
         playerNumber += 1
-        print(getPlayerName(playerNumber) + " connected:", address, '\n')
-        clients.append((playerNumber, connection, address))
+        print(playerNumberToName(playerNumber) + " connected:", address, '\n')
+        clients[playerNumber] = (connection, address)
+        sendPlayerName(playerNumber)
 
-def closeConnection(playerIndex):
+def closeConnection(playerNumber):
     global clients
-    numClients = len(clients)
 
-    if playerIndex < numClients:
-        playerNumber, connection, address = clients[playerIndex]
+    if playerNumber in clients:
+        connection, address = clients[playerNumber]
         connection.close()
-        print(getPlayerName(playerNumber) + " has been disconnected.")
-    else: print("Error: playerIndex exceeds number of clients.")
+        print(playerNumberToName(playerNumber) + " has been disconnected.")
+    else: print("Error: playerNumber does not exist in clients.")  
 
-def getMessage(playerIndex):
-    global serverSocket
-    global clients
-    numClients = len(clients)  
+ 
 
-    if playerIndex < numClients:
-        playerNumber, connection, address = clients[playerIndex]
-        message = connection.recv(1024)
-        decodedMessage = message.decode()
-        #print(getPlayerName(playerNumber) + " says:", decodedMessage)
-        return decodedMessage
-    else: print("Error: playerIndex exceeds number of clients.")        
-
-def sendMessage(playerIndex, message):
-    global clients
-    numClients = len(clients)
-
-    if playerIndex < numClients:
-        playerNumber, connection, address = clients[playerIndex]
-        connection.sendall(message.encode())
-    else: print("Error: playerIndex exceeds number of clients.")
-
-def requestAction(playerIndex):
+def requestAction(playerNumber):
     global validActions
-    sendMessage(playerIndex, "REQUEST: ACTION")
-    action = getMessage(playerIndex)
+    sendMessage(playerNumber, "REQUEST: ACTION")
+    action = getMessage(playerNumber)
     if action in validActions: return action
     else:
-        print("ERROR: Invalid action: " + action)
-        return ("ERROR: Invalid action: " + action)
+        print("ERROR: Invalid action: " + str(action))
+        return ("ERROR: Invalid action: " + str(action))
 
-def requestClose(playerIndex):
-    sendMessage(playerIndex, "REQUEST: CLOSE")
+def requestClose(playerNumber):
+    sendMessage(playerNumber, "REQUEST: CLOSE")
+
+def updatePlayerBoard(playerNumber, dealerHand, playerHand):
+    message = "UPDATE:"
+    message += "DEALER:" + dealerHand + ';'
+    message += playerNumberToName(playerNumber) + ':' + playerHand + ';'
+    sendMessage(playerNumber, message)
+    
 
 
 #startServer(serverAddress, serverPort)

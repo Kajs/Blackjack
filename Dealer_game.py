@@ -105,6 +105,15 @@ def getHandInfo(hand):
         handString += card + ' '
     return ("Your hand is " + handString + "with a total of: " + str(getHandTotal(hand)) + '.')
 
+def handToString(hand):
+    handString = ""
+    numCards = len(hand)
+    for i in range(numCards):
+        handString += hand[i]
+        if i < numCards - 1:
+            handString += ','
+    return handString
+
 def resetGame(numDecks):
     newShoe = getDeck()
     shuffleDeck(newShoe)

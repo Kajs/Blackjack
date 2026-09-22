@@ -2,6 +2,17 @@ import socket
 import time
 
 clientSocket = None
+myPlayerName = None
+dealerHand = []
+myHand = []
+
+def setMyPlayerName(playerName):
+    global myPlayerName
+    
+    if myPlayerName == None:
+        myPlayerName = playerName
+        print("I am " + myPlayerName)
+    else: print("ERROR: my player name has already been set.")
 
 def startClient(host, port):
     global clientSocket
@@ -29,7 +40,7 @@ def getMessage():
     else:
         message = clientSocket.recv(1024)
         decodedMessage = message.decode()
-        #print("Dealer says:", decodedMessage)
+        print("Dealer says:", decodedMessage)
         return parseMessage(decodedMessage)
 
 def sendMessage(message):
@@ -51,13 +62,15 @@ def getPlayerAction():
         else: print("ERROR: invalid input: " + response)
 
 def parseMessage(message):
+    global myPlayerName
+    
     if ':' in message:
         messageParts = message.split(":", 1)
 
         messageType = messageParts[0].strip()
         messageValue = messageParts[1].strip()
 
-        print("Message type:", messageType, "MessageValue", messageValue)
+        #print("Message type:", messageType, "MessageValue", messageValue)
 
         if messageType == "REQUEST":
             if messageValue == "ACTION":
@@ -69,5 +82,21 @@ def parseMessage(message):
             if messageValue == "CLOSE":
                 closeClient()
                 return False
+        if messageType == "YOURNAMEIS":
+            setMyPlayerName(messageValue)
+        if messageType == "UPDATE":
+            hands = messageValue.split(";")
+            for i in range(len(hands) - 1): #skipping the last terminating ';'
+                handString = hands[i]
+                handParts = handString.split(':', 1)
+                handType = handParts[0].strip()
+                cards = handParts[1].strip()
+
+                if handType == "DEALER":
+                    print("Dealer hand: " + cards)
+                elif handType == myPlayerName:
+                    print("My hand: " + cards)
+                else: print("ERROR parsing hand")
+                #print("Update request:",i,hands[i])
     else: print("Error: invalid format in message:", message)
     return True

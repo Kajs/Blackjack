@@ -34,7 +34,7 @@ def takeDealerTurn(deck, dealerHand, playerHand):
     print('')
     return True
 
-def takePlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
+def takePlayerTurn(playerNumer, deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
     updateScreen(dealerHand, playerHand, True)
     dealerVisibleCard = dealerHand[1]
     print("PLAYERS turn, press s to stand or h to hit. Dealers card is " + dealerVisibleCard + '.')
@@ -56,12 +56,13 @@ def takePlayerTurn(deck, playerHand, dealerHand): #Though meant to be unlikely/i
             break
         else: print(handInfo)
         
-        response = requestAction(0)
+        response = requestAction(playerNumber)
         if response == actionHit:
             card = drawCard(deck)
             playerHand.append(card)
             updateScreen(dealerHand, playerHand, True)
             print("Your draw is " + card)
+            updatePlayerBoard(playerNumber, handToString(dealerHand), handToString(playerHand))
         if response != actionStand and response != actionHit:
             print("Invalid action: " + response)
     print('')
@@ -82,13 +83,14 @@ startGameWindow(400, 600, 60)
 startServer(serverAddress, serverPort)
 acceptConnection()
 
+playerNumber = 1
 (shoe, discardPile, dealerHand, playerHand) = resetGame(numDecks)
 continuePlaying = True
 while continuePlaying:
     while len(shoe) > cutCard and continuePlaying:
         dealCards(shoe, dealerHand, playerHand)
         updateScreen(dealerHand, playerHand, True)
-        takePlayerTurn(shoe, playerHand, dealerHand)
+        takePlayerTurn(playerNumber, shoe, playerHand, dealerHand)
         continuePlaying = takeDealerTurn(shoe, dealerHand, playerHand)
         declareRoundWinner(dealerHand, playerHand)
         print("Length of shoe is now: " + str(len(shoe)) + '\n')
@@ -101,8 +103,8 @@ while continuePlaying:
         else: print("Invalid input: " + response)
 print("Thank you for playing.")
 closeGameWindow()
-requestClose(0)
-closeConnection(0)
+requestClose(playerNumber)
+closeConnection(playerNumber)
 closeServer()
 
     

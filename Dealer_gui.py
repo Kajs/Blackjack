@@ -124,7 +124,6 @@ def updateScreen(dealerHand, playerHand, faceDownMode):
     drawButtons()
     drawCards(dealerHand, playerHand, faceDownMode)
     pygame.display.flip()
-    pygame.event.pump() #temporary potential fix for pygame not updating. This bug is expected to go away, when the player has a gui and the game continually checks for pygame events during the players turn and this can then be deleted.
 
 def getDealerAction():
     global hit_button
