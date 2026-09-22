@@ -13,8 +13,7 @@ def startGameWindow(width, height, framelimit):
     pygame.init()
     screen = pygame.display.set_mode((width, height))
     clock = pygame.time.Clock()
-    clock.tick(framelimit)
-    pygame.font.SysFont("test", 40)    
+    clock.tick(framelimit)   
     
     pygame.display.set_caption("Blackjack")
     updateScreen([], [], True)
@@ -64,7 +63,7 @@ def drawButtons():
     screen.blit(stand_text, stand_text.get_rect(center=stand_button.center))
     screen.blit(exit_text, exit_text.get_rect(center=exit_button.center))
     
-def drawCards(dealerHand, playerHand, faceDownMode):
+def drawCards(dealerHand, playerHand):
     global screen
     global loadedImages
     
@@ -72,10 +71,10 @@ def drawCards(dealerHand, playerHand, faceDownMode):
     screenHeight = screen.get_height()
     dealerCardWidth = 100
     dealerCardHeight = 145
-    dealerCardHDisplacement = 0.65
+    dealerCardHDisplacement = 0.2
     playerCardWidth = 100
     playerCardHeight = 145
-    playerCardHDisplacement = 0.2
+    playerCardHDisplacement = 0.65
     cardDownscaleFactor = 0.9
     
     while dealerCardWidth * len(dealerHand) > screenWidth:
@@ -87,31 +86,13 @@ def drawCards(dealerHand, playerHand, faceDownMode):
 
     center_x = screenWidth // 2
     center_y = screenHeight // 2
-    cardWPos = center_x - (dealerCardWidth/2) * (len(dealerHand) - 1)
-    cardHPos = screenHeight * dealerCardHDisplacement
-    
-    for i in range(len(dealerHand)):
-        card = ""
-        if i == 0 and faceDownMode: card = "FD"
-        else: card = dealerHand[i]
-
-        cardImage = None
-        if card in loadedImages: cardImage = loadedImages[card]
-        else:
-            cardImage = pygame.image.load("Images/Cards/" + card + ".png").convert_alpha()
-            loadedImages[card] = cardImage
-        cardImage = pygame.transform.scale(cardImage, (dealerCardWidth, dealerCardHeight))
-        cardRect = cardImage.get_rect(center=(cardWPos, cardHPos))
-        screen.blit(cardImage, cardRect)
-        cardWPos += dealerCardWidth
-
     cardWPos = center_x - (playerCardWidth/2) * (len(playerHand) - 1)
     cardHPos = screenHeight * playerCardHDisplacement
-
+    
     for i in range(len(playerHand)):
         card = playerHand[i]
-
         cardImage = None
+        
         if card in loadedImages: cardImage = loadedImages[card]
         else:
             cardImage = pygame.image.load("Images/Cards/" + card + ".png").convert_alpha()
@@ -120,6 +101,22 @@ def drawCards(dealerHand, playerHand, faceDownMode):
         cardRect = cardImage.get_rect(center=(cardWPos, cardHPos))
         screen.blit(cardImage, cardRect)
         cardWPos += playerCardWidth
+
+    cardWPos = center_x - (dealerCardWidth/2) * (len(dealerHand) - 1)
+    cardHPos = screenHeight * dealerCardHDisplacement
+
+    for i in range(len(dealerHand)):
+        card = dealerHand[i]
+        cardImage = None
+        
+        if card in loadedImages: cardImage = loadedImages[card]
+        else:
+            cardImage = pygame.image.load("Images/Cards/" + card + ".png").convert_alpha()
+            loadedImages[card] = cardImage
+        cardImage = pygame.transform.scale(cardImage, (dealerCardWidth, dealerCardHeight))
+        cardRect = cardImage.get_rect(center=(cardWPos, cardHPos))
+        screen.blit(cardImage, cardRect)
+        cardWPos += dealerCardWidth
 
 def closeGameWindow():
     pygame.quit()
