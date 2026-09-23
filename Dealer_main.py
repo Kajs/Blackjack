@@ -37,7 +37,7 @@ def takeDealerTurn(deck, dealerHand, playerHand):
     print('')
     return True
 
-def takePlayerTurn(playerNumer, deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
+def takePlayerTurn(playerNumber, deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
     updateScreen(dealerHand, playerHand, True)
     updatePlayerBoard(playerNumber, handToString(dealerHand), handToString(playerHand)) 
     dealerVisibleCard = dealerHand[1]
