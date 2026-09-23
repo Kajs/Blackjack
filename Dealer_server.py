@@ -36,7 +36,7 @@ def sendPlayerName(playerNumber):
 
     if playerNumber in clients:
         playerName = playerNumberToName(playerNumber)
-        message = "YOURNAMEIS: " + playerName
+        message = "YOURNAMEIS: " + playerName + '\n'
         sendMessage(playerNumber, message)
     else: print("Error: playerNumber does not exist in clients.") 
 
@@ -85,7 +85,7 @@ def closeConnection(playerNumber):
 
 def requestAction(playerNumber):
     global validActions
-    sendMessage(playerNumber, "REQUEST: ACTION")
+    sendMessage(playerNumber, "REQUEST: ACTION\n")
     action = getMessage(playerNumber)
     if action in validActions: return action
     else:
@@ -93,12 +93,12 @@ def requestAction(playerNumber):
         return ("ERROR: Invalid action: " + str(action))
 
 def requestClose(playerNumber):
-    sendMessage(playerNumber, "REQUEST: CLOSE")
+    sendMessage(playerNumber, "REQUEST: CLOSE\n")
 
 def updatePlayerBoard(playerNumber, dealerHand, playerHand):
     message = "UPDATE:"
     message += "DEALER:" + dealerHand + ';'
-    message += playerNumberToName(playerNumber) + ':' + playerHand + ';'
+    message += playerNumberToName(playerNumber) + ':' + playerHand + '\n'
     sendMessage(playerNumber, message)
     
 

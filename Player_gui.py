@@ -7,7 +7,7 @@ exit_button = None
 screen = None
 loadedImages = {}
 
-def startGameWindow(width, height, framelimit):
+def startGameWindow(width, height, framelimit, title):
     global screen
     
     pygame.init()
@@ -15,8 +15,8 @@ def startGameWindow(width, height, framelimit):
     clock = pygame.time.Clock()
     clock.tick(framelimit)   
     
-    pygame.display.set_caption("Blackjack")
-    updateScreen([], [], True)
+    pygame.display.set_caption(title)
+    updateScreen([], [])
 
 def drawButtons():
     global hit_button
@@ -121,34 +121,36 @@ def drawCards(dealerHand, playerHand):
 def closeGameWindow():
     pygame.quit()
 
-def updateScreen(dealerHand, playerHand, faceDownMode):
+def updateScreen(dealerHand, playerHand):
     global screen
     screen.fill("green")
     drawButtons()
-    drawCards(dealerHand, playerHand, faceDownMode)
+    drawCards(dealerHand, playerHand)
     pygame.display.flip()
 
-def getDealerAction():
+def getPlayerAction(dealerHand, playerHand):
     global hit_button
     global stand_button
     global exit_button
     
+    print("Player: running getPlayerAction")
     while True:
+        updateScreen(dealerHand, playerHand)
         for event in pygame.event.get():
             # Close the window
             if event.type == pygame.QUIT:
-                return "quit"
+                return "QUIT"
 
             # Mouse click
             if event.type == pygame.MOUSEBUTTONDOWN:
 
                 if hit_button.collidepoint(event.pos):
-                    return "hit"
+                    return "HIT"
 
                 if stand_button.collidepoint(event.pos):
-                    return "stand"
+                    return "STAND"
                 
                 if exit_button.collidepoint(event.pos):
                     print ("exit button hit")
-                    return "quit"
+                    return "QUIT"
     

@@ -7,8 +7,10 @@ serverPort = 5000
     
 
 def takeDealerTurn(deck, dealerHand, playerHand):
-    updateScreen(dealerHand, playerHand, False)
     print("DEALERS turn")
+    playerNumber = 1 #temporary, should iterate over each client in Dealer_server and update each
+    updateScreen(dealerHand, playerHand, False)
+    updatePlayerBoard(playerNumber, handToString(dealerHand), handToString(playerHand))
     dealerAction = ""
     
     while dealerAction != "stand":
@@ -25,6 +27,7 @@ def takeDealerTurn(deck, dealerHand, playerHand):
         if dealerAction == "hit":
             handTotal = takeHitAction(deck, dealerHand)
             updateScreen(dealerHand, playerHand, False)
+            updatePlayerBoard(playerNumber, handToString(dealerHand), handToString(playerHand))
             if handTotal > 21:
                 print("You may no longer hit, since your hand total exceeds 21.\n")
                 time.sleep(1)
@@ -79,7 +82,7 @@ cutCard = 52
 print("The shoe contains " + str(numDecks) + " deck(s), for a total of " + str(numDecks*52) + " cards.\n")
 print("The cut card is at " + str(cutCard) + " cards. When the shoe reaches or surpasses the cut card, the shoe will either be shuffled or the game will end, at the end of the round.\n")
 
-startGameWindow(400, 600, 60)
+startGameWindow(400, 500, 60)
 
 startServer(serverAddress, serverPort)
 acceptConnection()

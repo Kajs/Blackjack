@@ -14,9 +14,9 @@ def startGameWindow(width, height, framelimit):
     screen = pygame.display.set_mode((width, height))
     clock = pygame.time.Clock()
     clock.tick(framelimit)
-    pygame.font.SysFont("test", 40)    
+    #pygame.font.SysFont("test", 40)    
     
-    pygame.display.set_caption("Blackjack")
+    pygame.display.set_caption("Blackjack - DEALER")
     updateScreen([], [], True)
 
 def drawButtons():
