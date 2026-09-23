@@ -1,5 +1,7 @@
 from Player_client import *
 from Player_gui import *
+import multiprocessing
+
 serverAddress = "127.0.0.1"
 serverPort = 5000
 myPlayerName = None
@@ -26,7 +28,7 @@ def getPlayerTextAction():
             return "STAND"
         else: print("ERROR: invalid input: " + response)
 
-def parseMessage(message):
+def parseMessage(message, guiQueue, actionQueue):
     global myPlayerName
     global dealerHand
     global myHand
@@ -45,9 +47,14 @@ def parseMessage(message):
             if messageType == "REQUEST":
                 if messageValue == "ACTION":
                     print("Your turn. Press s to stand or h to hit.")
-                    action = getPlayerAction(dealerHand, myHand)
+                    #action = getPlayerAction(dealerHand, myHand)
+                    print("Player_main: putting action request in queue.")
+                    guiQueue.put({"type": "REQUEST_ACTION"})
+                    print("Player_main: waiting for gui to return action.")
+                    action = actionQueue.get()
                     if action == "HIT": sendMessage("ACTION: HIT")
                     elif action == "STAND": sendMessage("ACTION: STAND")
+                    #TO DO: Handle QUIT
                     else: print("ERROR: invalid action: " + action)
                 if messageValue == "CLOSE":
                     closeClient()
@@ -72,18 +79,32 @@ def parseMessage(message):
                     if handType == "DEALER":
                         print("Dealer hand: " + cardString)
                         dealerHand = cards
-                        updateScreen(dealerHand, myHand)
+                        guiQueue.put({"type": "UPDATE_HAND", "handType": "DEALER", "hand": dealerHand})
+                        #updateScreen(dealerHand, myHand)
                     elif handType == myPlayerName:
                         print("My hand: " + cardString)
                         myHand = cards
-                        updateScreen(dealerHand, myHand)
+                        guiQueue.put({"type": "UPDATE_HAND", "handType": "MYHAND", "hand": myHand})
+                        #updateScreen(dealerHand, myHand)
                     else: print("ERROR parsing hand")
         else: print("Error: invalid format in message:", str(command))
     return True
 
-startClient(serverAddress, serverPort)
-clientActive = True
-parseMessage(getMessage()) # Wait to receive player name, before starting gui
-startGameWindow(400, 500, 60, "Blackjack - " + myPlayerName)
-while clientActive:
-    clientActive = parseMessage(getMessage())
+def main():
+    startClient(serverAddress, serverPort)
+    clientActive = True
+    guiQueue = multiprocessing.Queue()
+    actionQueue = multiprocessing.Queue()
+    parseMessage(getMessage(), guiQueue, actionQueue) # Wait to receive player name, before starting gui
+    guiTitle = "Blackjack - " + myPlayerName
+    guiProcess = multiprocessing.Process(
+        target=startGameWindow,
+        args=(guiQueue, actionQueue, 400, 500, 60, guiTitle)
+    )
+    #startGameWindow(400, 500, 60, "Blackjack - " + myPlayerName)
+    guiProcess.start()
+    while clientActive:
+        clientActive = parseMessage(getMessage(), guiQueue, actionQueue)
+
+if __name__ == "__main__":
+    main()

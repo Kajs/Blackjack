@@ -126,6 +126,8 @@ def closeGameWindow():
 
 def updateScreen(dealerHand, playerHand, faceDownMode):
     global screen
+    pygame.event.pump()
+    
     screen.fill("green")
     drawButtons()
     drawCards(dealerHand, playerHand, faceDownMode)

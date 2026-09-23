@@ -1,14 +1,19 @@
 import pygame
 import time
+from queue import Empty
 
 hit_button = None
 stand_button = None
 exit_button = None
 screen = None
 loadedImages = {}
+dealerHand = []
+myHand = []
 
-def startGameWindow(width, height, framelimit, title):
+def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
     global screen
+    global dealerHand
+    global myHand
     
     pygame.init()
     screen = pygame.display.set_mode((width, height))
@@ -16,7 +21,30 @@ def startGameWindow(width, height, framelimit, title):
     clock.tick(framelimit)   
     
     pygame.display.set_caption(title)
-    updateScreen([], [])
+    #updateScreen(dealerHand, myHand)
+
+    running = True
+    while running:
+        try:
+            #print("Trying to fetch gui message") 
+            message = guiQueue.get_nowait()
+            print("Gui message received") 
+            if message["type"] == "REQUEST_ACTION":
+                print("Gui: getting player action.") 
+                action = getPlayerAction(dealerHand, myHand)
+                actionQueue.put(action)
+            elif message["type"] == "UPDATE_HAND":
+                handType = message["handType"]
+                hand = message["hand"]
+                if handType == "DEALER":
+                    dealerHand = hand
+                elif handType == "MYHAND":
+                    myHand = hand
+                else: print("Player gui: unmatched hand type.")
+        except Empty: pass
+            #print("Empty gui queue, moving on.")
+            #time.sleep(2)
+        updateScreen(dealerHand, myHand)
 
 def drawButtons():
     global hit_button
@@ -123,6 +151,8 @@ def closeGameWindow():
 
 def updateScreen(dealerHand, playerHand):
     global screen
+    pygame.event.pump()
+
     screen.fill("green")
     drawButtons()
     drawCards(dealerHand, playerHand)
@@ -133,7 +163,6 @@ def getPlayerAction(dealerHand, playerHand):
     global stand_button
     global exit_button
     
-    print("Player: running getPlayerAction")
     while True:
         updateScreen(dealerHand, playerHand)
         for event in pygame.event.get():
