@@ -55,6 +55,7 @@ Cards = ["AC",
          "KS",
     ]
 
+#Returns a list with all the cards definced in the Cards list
 def getDeck():
     Deck = []
     for i in range(len(Cards)):
@@ -64,11 +65,13 @@ def getDeck():
 def shuffleDeck(d):
     random.shuffle(d)
 
+#Used for drawing a card from a deck (or multiple decks in sequence) of cards. The card is deleted, to simulate it no longer being in the deck
 def drawCard(d):
     card = d[0]
     del d[0]
     return card
 
+#Returns the numerical value of a card for blackjack. Minimum and maximum is the same for all cards, except aces
 def getCardValue(c):
     if c == "AC" or c == "AD" or c == "AH" or c == "AS":
         return (1, 11)
@@ -99,12 +102,14 @@ def getCardValue(c):
     print("Error: getCardValue didn't find a match for: " + str(c))
     return None
 
+#Gives a string representation of the cards in a players/dealers hand, along with it's effective value (aces may count as 1's, if 11 would put it above 21)
 def getHandInfo(hand):
     handString = ""
     for card in hand:
         handString += card + ' '
     return ("Your hand is " + handString + "with a total of: " + str(getHandTotal(hand)) + '.')
 
+#Gives a comma separated string representation of a hand of cards. Used when the server needs to send hand updates to player gui's
 def handToString(hand):
     handString = ""
     numCards = len(hand)
@@ -114,11 +119,13 @@ def handToString(hand):
             handString += ','
     return handString
 
+#Used to get a copy of a hand, where the first card is facedown, so players can't see which one it is
 def getFacedownHand(hand):
     fdHand = ["FD"]
     fdHand.append(hand[1])
     return fdHand
 
+#Returns a sequence of shuffled decks as a single list, as well as empty lists for the discard pile, player hand and dealer hand. Used at the start of a game or to reshuffle the decks, when the cut card is reached
 def resetGame(numDecks):
     newShoe = getDeck()
     shuffleDeck(newShoe)
@@ -133,13 +140,15 @@ def resetGame(numDecks):
     playerHand = []
     return (newShoe, discardPile, dealerHand, playerHand)
 
-def dealCards(deck, dealerHand, playerHand): #needs check to see if the deck has enough cards remaining
+#Deal a hand of 2 cards for the dealer and a player
+def dealCards(deck, dealerHand, playerHand):
     for i in range(2):
         playerCard = drawCard(deck)
         playerHand.append(playerCard)
         dealerCard = drawCard(deck)
         dealerHand.append(dealerCard)
 
+#Moves all cards in a dealer hand and player hand to the discard pile, to prepare for the next round
 def endRound(discardPile, dealerHand, playerHand):
     for i in range(len(playerHand)):
         card = drawCard(playerHand)
@@ -148,7 +157,7 @@ def endRound(discardPile, dealerHand, playerHand):
         card = drawCard(dealerHand)
         discardPile.append(card)
 
-
+#Returns the effective numerical total of a hand of cards, with aces counting as 1's, if their max of 11 would put the hand above or further above 21
 def getHandTotal(hand):
     numAces = 0
     handTotal = 0
@@ -165,6 +174,7 @@ def getHandTotal(hand):
         numAces -= 1
     return handTotal
 
+#Removes a card from the shoe and adds it to the hand
 def takeHitAction(deck, hand):
     card = drawCard(deck)
     print("Card draw is " + card)
@@ -175,7 +185,11 @@ def declareRoundWinner(dealerHand, playerHand):
     dealerHandTotal = getHandTotal(dealerHand)
     playerHandTotal = getHandTotal(playerHand)
 
-    if playerHandTotal <= 21 and (playerHandTotal > dealerHandTotal or dealerHandTotal > 21):
+    if playerHandTotal == 21 and len(playerHand) == 2 and dealerHandTotal == 21 and len(dealerHand) > 2: #Blackjack vs 21
+        print("WINNER________: PLAYER has won this round.")
+    elif dealerHandTotal == 21 and len(dealerHand) == 2 and playerHandTotal == 21 and len(playerHand) > 2: #Blackjack vs 21
+        print("WINNER________: DEALER has won this round.")
+    elif playerHandTotal <= 21 and (playerHandTotal > dealerHandTotal or dealerHandTotal > 21):
         print("WINNER________: PLAYER has won this round.")
     elif dealerHandTotal <= 21 and (dealerHandTotal > playerHandTotal or playerHandTotal > 21):
         print("WINNER________: DEALER has won this round.")
