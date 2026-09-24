@@ -23,8 +23,7 @@ def closeClient():
         clientSocket.close()
         print("Client has been closed.")
 
-#wait for a server text command and return it
-def getMessage():
+def getMessage():  #wait for a server text command and return it
     global clientSocket
     
     if clientSocket == None:
@@ -36,8 +35,7 @@ def getMessage():
         #print("Dealer says:", decodedMessage)
         return decodedMessage
 
-#Send a response to the server
-def sendMessage(message):
+def sendMessage(message):  #Send a response to the server
     global clientSocket
     if clientSocket == None:
         print("Error in sendMessage: client socket has not been started or is not connected.")

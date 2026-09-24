@@ -4,20 +4,21 @@ import multiprocessing
 
 serverAddress = "127.0.0.1"
 serverPort = 5000
-myPlayerName = None
+myPlayerNumber = None
 dealerHand = []
 myHand = []
 
-def setMyPlayerName(playerName):
-    global myPlayerName
+#Store the player name the server has
+def setMyPlayerNumber(playerNumber):
+    global myPlayerNumber
     
-    if myPlayerName == None:
-        myPlayerName = playerName
-        print("I am " + myPlayerName)
-    else: print("ERROR: my player name has already been set.")
+    if myPlayerNumber == None:
+        myPlayerNumber = int(playerNumber)
+        print("I am PLAYER" + str(myPlayerNumber))
+    else: print("ERROR in setMyPlayerNumber: player number has already been set.")
 
 def parseMessage(message, guiQueue, actionQueue):
-    global myPlayerName
+    global myPlayerNumber
     global dealerHand
     global myHand
     
@@ -35,7 +36,6 @@ def parseMessage(message, guiQueue, actionQueue):
             if messageType == "REQUEST":
                 if messageValue == "ACTION":
                     print("Your turn.")
-                    #action = getPlayerAction(dealerHand, myHand)
                     print("Player_main: putting action request in queue.")
                     guiQueue.put({"type": "REQUEST_ACTION"})
                     print("Player_main: waiting for gui to return action.")
@@ -48,7 +48,7 @@ def parseMessage(message, guiQueue, actionQueue):
                     guiQueue.put({"type": "CLOSE_GUI"})
                     closeClient()
                     return False
-            if messageType == "YOURNAMEIS": setMyPlayerName(messageValue)
+            if messageType == "YOURNUMBERIS": setMyPlayerNumber(messageValue)
             if messageType == "UPDATE":
                 hands = messageValue.split(";")
                 for i in range(len(hands)):
@@ -69,12 +69,10 @@ def parseMessage(message, guiQueue, actionQueue):
                         print("Dealer hand: " + cardString)
                         dealerHand = cards
                         guiQueue.put({"type": "UPDATE_HAND", "handType": "DEALER", "hand": dealerHand})
-                        #updateScreen(dealerHand, myHand)
-                    elif handType == myPlayerName:
+                    elif handType == "PLAYER" + str(myPlayerNumber):
                         print("My hand: " + cardString)
                         myHand = cards
                         guiQueue.put({"type": "UPDATE_HAND", "handType": "MYHAND", "hand": myHand})
-                        #updateScreen(dealerHand, myHand)
                     else: print("ERROR parsing hand")
         else: print("Error: invalid format in message:", str(command))
     return True

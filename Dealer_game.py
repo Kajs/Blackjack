@@ -55,8 +55,7 @@ Cards = ["AC",
          "KS",
     ]
 
-#Returns a list with all the cards definced in the Cards list
-def getDeck():
+def getDeck():  #Returns a list with all the cards definced in the Cards list
     Deck = []
     for i in range(len(Cards)):
         Deck.append(Cards[i])
@@ -65,14 +64,12 @@ def getDeck():
 def shuffleDeck(d):
     random.shuffle(d)
 
-#Used for drawing a card from a deck (or multiple decks in sequence) of cards. The card is deleted, to simulate it no longer being in the deck
-def drawCard(d):
+def drawCard(d):  #Used for drawing a card from a deck (or multiple decks in sequence) of cards. The card is deleted, to simulate it no longer being in the deck
     card = d[0]
     del d[0]
     return card
 
-#Returns the numerical value of a card for blackjack. Minimum and maximum is the same for all cards, except aces
-def getCardValue(c):
+def getCardValue(c):  #Returns the numerical value of a card for blackjack. Minimum and maximum is the same for all cards, except aces
     if c == "AC" or c == "AD" or c == "AH" or c == "AS":
         return (1, 11)
     if c == "2C" or c == "2D" or c == "2H" or c == "2S":
@@ -102,15 +99,13 @@ def getCardValue(c):
     print("Error: getCardValue didn't find a match for: " + str(c))
     return None
 
-#Gives a string representation of the cards in a players/dealers hand, along with it's effective value (aces may count as 1's, if 11 would put it above 21)
-def getHandInfo(hand):
+def getHandInfo(hand):  #Gives a string representation of the cards in a players/dealers hand, along with it's effective value (aces may count as 1's, if 11 would put it above 21)
     handString = ""
     for card in hand:
         handString += card + ' '
     return ("Your hand is " + handString + "with a total of: " + str(getHandTotal(hand)) + '.')
 
-#Gives a comma separated string representation of a hand of cards. Used when the server needs to send hand updates to player gui's
-def handToString(hand):
+def handToString(hand):  #Gives a comma separated string representation of a hand of cards. Used when the server needs to send hand updates to player gui's
     handString = ""
     numCards = len(hand)
     for i in range(numCards):
@@ -119,8 +114,7 @@ def handToString(hand):
             handString += ','
     return handString
 
-#Used to get a copy of a hand, where the first card is facedown, so players can't see which one it is
-def getFacedownHand(hand):
+def getFacedownHand(hand):  #Used to get a copy of a hand, where the first card is facedown, so players can't see which one it is
     fdHand = ["FD"]
     fdHand.append(hand[1])
     return fdHand
@@ -140,16 +134,14 @@ def resetGame(numDecks):
     playerHand = []
     return (newShoe, discardPile, dealerHand, playerHand)
 
-#Deal a hand of 2 cards for the dealer and a player
-def dealCards(deck, dealerHand, playerHand):
+def dealCards(deck, dealerHand, playerHand):  #Deal a hand of 2 cards for the dealer and a player
     for i in range(2):
         playerCard = drawCard(deck)
         playerHand.append(playerCard)
         dealerCard = drawCard(deck)
         dealerHand.append(dealerCard)
 
-#Moves all cards in a dealer hand and player hand to the discard pile, to prepare for the next round
-def endRound(discardPile, dealerHand, playerHand):
+def endRound(discardPile, dealerHand, playerHand):  #Moves all cards in a dealer hand and player hand to the discard pile, to prepare for the next round
     for i in range(len(playerHand)):
         card = drawCard(playerHand)
         discardPile.append(card)
@@ -157,8 +149,7 @@ def endRound(discardPile, dealerHand, playerHand):
         card = drawCard(dealerHand)
         discardPile.append(card)
 
-#Returns the effective numerical total of a hand of cards, with aces counting as 1's, if their max of 11 would put the hand above or further above 21
-def getHandTotal(hand):
+def getHandTotal(hand):  #Returns the effective numerical total of a hand of cards, with aces counting as 1's, if their max of 11 would put the hand above or further above 21
     numAces = 0
     handTotal = 0
 
@@ -174,14 +165,13 @@ def getHandTotal(hand):
         numAces -= 1
     return handTotal
 
-#Removes a card from the shoe and adds it to the hand
-def takeHitAction(deck, hand):
+def takeHitAction(deck, hand):  #Removes a card from the shoe and adds it to the hand
     card = drawCard(deck)
     print("Card draw is " + card)
     hand.append(card)
     return getHandTotal(hand)
 
-def declareRoundWinner(dealerHand, playerHand):
+def declareRoundWinner(dealerHand, playerHand):  #Compares the hand total of the dealer vs a player and writes who wins in the terminal
     dealerHandTotal = getHandTotal(dealerHand)
     playerHandTotal = getHandTotal(playerHand)
 

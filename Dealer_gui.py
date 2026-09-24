@@ -161,7 +161,8 @@ def getDealerAction(dealerHand, playerHand):
     global hit_button
     global stand_button
     global exit_button
-    
+
+    pygame.event.clear(pygame.MOUSEBUTTONDOWN)  #clear mouse events, in case any were on the hit or stand buttons, during previous turns    
     while True:
         updateScreen(dealerHand, playerHand)
         for event in pygame.event.get():

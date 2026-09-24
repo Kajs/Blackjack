@@ -91,8 +91,8 @@ def takePlayerTurn(guiQueue, playerNumber, deck, playerHand, dealerHand):
     print('') #add a new line, to make the terminal output more clearly separate the end of this players turn and the next player or the dealer
     return isPlayerActive
 
-#Used in combination with a player pressing the exit button and removes them from the game, at the end of the round
-def removeExitingPlayers(exitingPlayers, activePlayers):
+
+def removeExitingPlayers(exitingPlayers, activePlayers):  #Used in combination with a player pressing the exit button and removes them from the game, at the end of the round
     for eP in range(len(exitingPlayers)):
         playerNumber = exitingPlayers[eP]
         for aP in range(len(activePlayers)):
@@ -103,8 +103,7 @@ def removeExitingPlayers(exitingPlayers, activePlayers):
                 break    #break since we found a matching player number and there should only be one match
         del exitingPlayers[eP]    
 
-#The main game loop on the dealer side
-def main():
+def main():  #The main game loop on the dealer side
     welcomeString = "Welcome to the blackjack table!\n\n"
     welcomeString += "The second card letter means C for Clubs, D for Diamonds, H for Hearts and S for Spades, "
     welcomeString += "preceeded by 2-10 for numbered cards, A for Ace, J for Jarl, Q for Queen and K for King.\n"
