@@ -43,6 +43,10 @@ def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
                 elif handType == "MYHAND":
                     myHand = hand
                 else: print("Player gui: unmatched hand type.")
+            elif message["type"] == "CLOSE_GUI": 
+                closeGameWindow()
+                break
+            else: print("Player_gui: unmatched message:", message)
         except Empty: pass
         updateScreen(dealerHand, myHand)
 
@@ -147,6 +151,7 @@ def drawCards(dealerHand, playerHand):
         cardWPos += dealerCardWidth
 
 def closeGameWindow():
+    print("Closing player gui.")
     pygame.quit()
 
 def updateScreen(dealerHand, playerHand):

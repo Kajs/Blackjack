@@ -13,6 +13,7 @@ def takeDealerTurn(guiQueue, actionQueue, deck, dealerHand, playerHand):
     updatePlayerBoard(playerNumber, handToString(dealerHand), handToString(playerHand))
     dealerAction = ""
     
+    continueGame = True
     while dealerAction != "stand":
         handInfo = getHandInfo(dealerHand)
         handTotal = getHandTotal(dealerHand)
@@ -36,17 +37,24 @@ def takeDealerTurn(guiQueue, actionQueue, deck, dealerHand, playerHand):
                 time.sleep(1)
                 break
         if dealerAction == "quit":
-            return False
+            if continueGame:
+                print("Exit activated - please finish the round and the game will then end. Press exit again, to deactivate.")
+                continueGame = False
+            else:
+                print("Exit deactivated - the game will continue as normal.")
+                continueGame = True
     print('')
-    return True
+    return continueGame
 
 def takePlayerTurn(guiQueue, playerNumber, deck, playerHand, dealerHand): #Though meant to be unlikely/impossible, this should probably have some safeguard against an empty deck
     guiQueue.put({"type": "UPDATE_HAND", "handType": "PLAYER1", "hand": playerHand})#updateScreen(dealerHand, playerHand, True)
     updatePlayerBoard(playerNumber, handToString(dealerHand), handToString(playerHand)) 
     dealerVisibleCard = dealerHand[1]
-    print("PLAYERS turn, press s to stand or h to hit. Dealers card is " + dealerVisibleCard + '.')
+    print("PLAYERS turn. Dealers card is " + dealerVisibleCard + '.')
     actionHit = "ACTION: HIT"
     actionStand = "ACTION: STAND"
+    actionQuit = "ACTION: QUIT"
+    isPlayerActive = True
     
     response = ""
     while response != actionStand:
@@ -70,9 +78,28 @@ def takePlayerTurn(guiQueue, playerNumber, deck, playerHand, dealerHand): #Thoug
             print("Your draw is " + card)
             guiQueue.put({"type": "UPDATE_HAND", "handType": "PLAYER1", "hand": playerHand}) #updateScreen(dealerHand, playerHand, True)
             updatePlayerBoard(playerNumber, handToString(dealerHand), handToString(playerHand))
-        if response != actionStand and response != actionHit:
-            print("Invalid action: " + response)
-    print('')
+        elif response == actionQuit:
+            if isPlayerActive:
+                print("Player" + str(playerNumber) + " has activated exit and will be removed, at the end of the round.")
+                isPlayerActive = False
+            else:
+                print("Player" + str(playerNumber) + "has deactivated exit and can continue playing.")
+                isPlayerActive = True
+        if response != actionStand and response != actionHit and response != actionQuit:
+            print("Dealer_main: Invalid action:", response)
+    print('') #add a new line, to make the terminal output more clearly separate the end of this players turn and the next player or the dealer
+    return isPlayerActive
+
+def removeExitingPlayers(exitingPlayers, activePlayers):
+    for eP in range(len(exitingPlayers)):
+        playerNumber = exitingPlayers[eP]
+        for aP in range(len(activePlayers)):
+            if activePlayers[aP] == playerNumber:
+                requestClose(playerNumber)
+                closeConnection(playerNumber)
+                del activePlayers[aP]
+                break
+        del exitingPlayers[eP]    
 
 def main():
     welcomeString = "Welcome to the blackjack table!\n\n"
@@ -96,32 +123,42 @@ def main():
     #startGameWindow(400, 500, 60)
 
     startServer(serverAddress, serverPort)
-    acceptConnection()
+    newPlayerNumber = acceptConnection()
+    activePlayers = []
+    exitingPlayers = []
+    activePlayers.append(newPlayerNumber)
 
-    playerNumber = 1
     (shoe, discardPile, dealerHand, playerHand) = resetGame(numDecks)
     continuePlaying = True
     while continuePlaying:
-        while len(shoe) > cutCard and continuePlaying:
+        while continuePlaying and len(activePlayers) > 0 and len(shoe) > cutCard:
             dealCards(shoe, dealerHand, playerHand)
             dealerFacedownHand = getFacedownHand(dealerHand)
             guiQueue.put({"type": "UPDATE_HAND", "handType": "DEALER", "hand": dealerFacedownHand})
             guiQueue.put({"type": "UPDATE_HAND", "handType": "PLAYER1", "hand": playerHand})#updateScreen(dealerHand, playerHand, True)
-            takePlayerTurn(guiQueue, playerNumber, shoe, playerHand, dealerFacedownHand)      
+            for playerNumber in activePlayers: 
+                playerActive = takePlayerTurn(guiQueue, playerNumber, shoe, playerHand, dealerFacedownHand)  
+                if not playerActive: exitingPlayers.append(playerNumber)  
             continuePlaying = takeDealerTurn(guiQueue, actionQueue, shoe, dealerHand, playerHand)
             declareRoundWinner(dealerHand, playerHand)
             print("Length of shoe is now: " + str(len(shoe)) + '\n')
             endRound(discardPile, dealerHand, playerHand)
-        if continuePlaying:
+            removeExitingPlayers(exitingPlayers, activePlayers)
+
+        if continuePlaying and len(activePlayers) > 0:
             print("The shoe has reached or passed the cut card. Do you wish to shuffle and play again? Press y to play again or n to end the game.")
             response = input()
             if response == 'n': break
             if response == 'y': (shoe, discardPile, dealerHand, playerHand) = resetGame(numDecks)
             else: print("Invalid input: " + response)
+        if len(activePlayers) == 0:
+            print("All active players have exited - ending game.")
+            break
     print("Thank you for playing.")
-    closeGameWindow()
-    requestClose(playerNumber)
-    closeConnection(playerNumber)
+    guiQueue.put({"type": "CLOSE_GUI"})
+    for playerNumber in activePlayers:
+        requestClose(playerNumber)
+        closeConnection(playerNumber)
     closeServer()
 
 if __name__ == "__main__":

@@ -16,18 +16,6 @@ def setMyPlayerName(playerName):
         print("I am " + myPlayerName)
     else: print("ERROR: my player name has already been set.")
 
-def getPlayerTextAction():
-    response = ""
-    while response != 's':
-        response = input()
-        if response == "h":
-            print ("Sending HIT")
-            return "HIT"
-        if response == "s":
-            print ("Sending STAND")
-            return "STAND"
-        else: print("ERROR: invalid input: " + response)
-
 def parseMessage(message, guiQueue, actionQueue):
     global myPlayerName
     global dealerHand
@@ -46,7 +34,7 @@ def parseMessage(message, guiQueue, actionQueue):
 
             if messageType == "REQUEST":
                 if messageValue == "ACTION":
-                    print("Your turn. Press s to stand or h to hit.")
+                    print("Your turn.")
                     #action = getPlayerAction(dealerHand, myHand)
                     print("Player_main: putting action request in queue.")
                     guiQueue.put({"type": "REQUEST_ACTION"})
@@ -54,9 +42,10 @@ def parseMessage(message, guiQueue, actionQueue):
                     action = actionQueue.get()
                     if action == "HIT": sendMessage("ACTION: HIT")
                     elif action == "STAND": sendMessage("ACTION: STAND")
-                    #TO DO: Handle QUIT
+                    elif action == "QUIT": sendMessage("ACTION: QUIT")
                     else: print("ERROR: invalid action: " + action)
                 if messageValue == "CLOSE":
+                    guiQueue.put({"type": "CLOSE_GUI"})
                     closeClient()
                     return False
             if messageType == "YOURNAMEIS": setMyPlayerName(messageValue)

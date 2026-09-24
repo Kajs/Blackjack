@@ -4,7 +4,7 @@ serverAddress = "127.0.0.1"
 serverPort = 5000
 serverSocket = None
 clients = {}
-validActions = ["ACTION: HIT", "ACTION: STAND"]
+validActions = ["ACTION: HIT", "ACTION: STAND", "ACTION: QUIT"]
 playerNumber = 0
 
 def getMessage(playerNumber):
@@ -71,6 +71,8 @@ def acceptConnection():
         print(playerNumberToName(playerNumber) + " connected:", address, '\n')
         clients[playerNumber] = (connection, address)
         sendPlayerName(playerNumber)
+        return playerNumber
+    return -1
 
 def closeConnection(playerNumber):
     global clients
@@ -78,6 +80,7 @@ def closeConnection(playerNumber):
     if playerNumber in clients:
         connection, address = clients[playerNumber]
         connection.close()
+        del clients[playerNumber]
         print(playerNumberToName(playerNumber) + " has been disconnected.")
     else: print("Error: playerNumber does not exist in clients.")  
 
@@ -89,7 +92,7 @@ def requestAction(playerNumber):
     action = getMessage(playerNumber)
     if action in validActions: return action
     else:
-        print("ERROR: Invalid action: " + str(action))
+        print("Dealer_server: ERROR: Invalid action:", action)
         return ("ERROR: Invalid action: " + str(action))
 
 def requestClose(playerNumber):
