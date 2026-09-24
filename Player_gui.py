@@ -11,7 +11,7 @@ loadedImages = {}
 dealerHand = []
 myHand = []
 
-#Starts the player gui and continually draws the gui and parses commands from the quiQueue. Responses are put in actionQueue, that Player_main can send to the server
+#Starts the player gui and continually draws the gui and parses commands from the guiQueue. Responses are put in actionQueue, that Player_main can send to the server
 def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
     global screen
     global dealerHand
@@ -43,7 +43,7 @@ def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
                     dealerHand = hand
                 elif handType == "MYHAND":
                     myHand = hand
-                else: print("Player gui: unmatched hand type.")
+                else: print("Player_gui: unmatched hand type.")
             elif message["type"] == "CLOSE_GUI": 
                 closeGameWindow()
                 break
@@ -123,8 +123,7 @@ def drawCards(dealerHand, playerHand):  #Handles the drawing of cards in the pla
     cardWPos = center_x - (playerCardWidth/2) * (len(playerHand) - 1)   #calculate the starting horizontal position of the first card in the hand
     cardHPos = screenHeight * playerCardHDisplacement
     
-    for i in range(len(playerHand)):
-        card = playerHand[i]
+    for card in playerHand:
         cardImage = None
         
         if card in loadedImages: cardImage = loadedImages[card]  #if the image was loaded previously, get the stored version
@@ -139,8 +138,7 @@ def drawCards(dealerHand, playerHand):  #Handles the drawing of cards in the pla
     cardWPos = center_x - (dealerCardWidth/2) * (len(dealerHand) - 1)
     cardHPos = screenHeight * dealerCardHDisplacement
 
-    for i in range(len(dealerHand)):  #Start placing the dealer cards. Aside from the vertical position, this is idential to how the player cards were placed and drawn
-        card = dealerHand[i]
+    for card in dealerHand:  #Start placing the dealer cards. Aside from the vertical position, this is idential to how the player cards were placed and drawn
         cardImage = None
         
         if card in loadedImages: cardImage = loadedImages[card]
@@ -165,7 +163,7 @@ def updateScreen(dealerHand, playerHand):  #Responsible for drawing the entire g
     drawCards(dealerHand, playerHand)
     pygame.display.flip()
 
-def getPlayerAction(dealerHand, playerHand):  #Used when it is the players turn to take an action and thus handles button clicks
+def getPlayerAction(dealerHand, playerHand):  #Used when it is the players turn to take an action and handles button clicks
     global hit_button
     global stand_button
     global exit_button
