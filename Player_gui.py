@@ -11,6 +11,7 @@ loadedImages = {}
 dealerHand = []
 myHand = []
 
+#Starts the player gui and continually draws the gui and parses commands from the quiQueue. Responses are put in actionQueue, that Player_main can send to the server
 def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
     global screen
     global dealerHand
@@ -50,7 +51,7 @@ def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
         except Empty: pass
         updateScreen(dealerHand, myHand)
 
-def drawButtons():
+def drawButtons():  #Handles drawing of the hit, stand and exit buttons
     global hit_button
     global stand_button
     global exit_button
@@ -58,32 +59,32 @@ def drawButtons():
     
     button_width = 120
     button_height = 50
-    button_displacement = 0.85
+    button_displacement = 0.85  #used to place the hit and stand buttons, displaced at a fixed percentage of the total window height
     gap = 20
-    center_x = screen.get_width() // 2
+    center_x = screen.get_width() // 2   #used to place buttons in relation to the center of the window
 
-    hit_button = pygame.Rect(
+    hit_button = pygame.Rect(  #The hit button, which is placed in the lower 15% of the window, to the left of the center
         center_x - button_width - gap // 2,
         screen.get_height() * button_displacement,
         button_width,
         button_height
     )
 
-    stand_button = pygame.Rect(
+    stand_button = pygame.Rect(  #The stand button, which is placed in the lower 15% of the window, to the right of the center
         center_x + gap // 2,
         screen.get_height() * button_displacement,
         button_width,
         button_height
     )
 
-    exit_button = pygame.Rect(
+    exit_button = pygame.Rect(   #The exit button, which is placed in the upper right corner
         screen.get_width() - button_width/2,
         0,
         button_width/2,
         button_height/2
     )
 
-    pygame.draw.rect(screen, (100, 100, 100), hit_button)
+    pygame.draw.rect(screen, (100, 100, 100), hit_button)  #Draw the button rectangles
     pygame.draw.rect(screen, (100, 100, 100), stand_button)
     pygame.draw.rect(screen, (200, 000, 000), exit_button)
 
@@ -91,11 +92,11 @@ def drawButtons():
     hit_text = font.render("Hit", True, (255, 255, 255))
     stand_text = font.render("Stand", True, (255, 255, 255))
     exit_text = font.render("Exit", True, (255, 255, 255))
-    screen.blit(hit_text, hit_text.get_rect(center=hit_button.center))
+    screen.blit(hit_text, hit_text.get_rect(center=hit_button.center))  #Place the hit/stand/exit text on the corresponding buttons
     screen.blit(stand_text, stand_text.get_rect(center=stand_button.center))
     screen.blit(exit_text, exit_text.get_rect(center=exit_button.center))
     
-def drawCards(dealerHand, playerHand):
+def drawCards(dealerHand, playerHand):  #Handles the drawing of cards in the player and dealers hand
     global screen
     global loadedImages
     
@@ -103,13 +104,14 @@ def drawCards(dealerHand, playerHand):
     screenHeight = screen.get_height()
     dealerCardWidth = 100
     dealerCardHeight = 145
-    dealerCardHDisplacement = 0.2
+    dealerCardHDisplacement = 0.2    #Used to place the dealers card 20% away from the top of the window
     playerCardWidth = 100
     playerCardHeight = 145
-    playerCardHDisplacement = 0.65
-    cardDownscaleFactor = 0.9
+    playerCardHDisplacement = 0.65   #Used to place the players cards 35% away from the bottom of the window
+    cardDownscaleFactor = 0.9   #Used to downscale cards, in case they would not otherwise fit on the screen
     
-    while dealerCardWidth * len(dealerHand) > screenWidth:
+
+    while dealerCardWidth * len(dealerHand) > screenWidth:  #Check if the total width of cards in a hand can fit on the screen and if not, downscale them until they can
         dealerCardWidth = dealerCardWidth * cardDownscaleFactor
         dealerCardHeight = dealerCardHeight * cardDownscaleFactor
     while playerCardWidth * len(playerHand) > screenWidth:
@@ -118,26 +120,26 @@ def drawCards(dealerHand, playerHand):
 
     center_x = screenWidth // 2
     center_y = screenHeight // 2
-    cardWPos = center_x - (playerCardWidth/2) * (len(playerHand) - 1)
+    cardWPos = center_x - (playerCardWidth/2) * (len(playerHand) - 1)   #calculate the starting horizontal position of the first card in the hand
     cardHPos = screenHeight * playerCardHDisplacement
     
     for i in range(len(playerHand)):
         card = playerHand[i]
         cardImage = None
         
-        if card in loadedImages: cardImage = loadedImages[card]
+        if card in loadedImages: cardImage = loadedImages[card]  #if the image was loaded previously, get the stored version
         else:
             cardImage = pygame.image.load("Images/Cards/" + card + ".png").convert_alpha()
             loadedImages[card] = cardImage
-        cardImage = pygame.transform.scale(cardImage, (playerCardWidth, playerCardHeight))
+        cardImage = pygame.transform.scale(cardImage, (playerCardWidth, playerCardHeight))   #set the desired size, based on the original size and the extent to which they have been downscaled
         cardRect = cardImage.get_rect(center=(cardWPos, cardHPos))
         screen.blit(cardImage, cardRect)
-        cardWPos += playerCardWidth
+        cardWPos += playerCardWidth  #shift the horizontal position one card length to the right for the next card in the hand
 
     cardWPos = center_x - (dealerCardWidth/2) * (len(dealerHand) - 1)
     cardHPos = screenHeight * dealerCardHDisplacement
 
-    for i in range(len(dealerHand)):
+    for i in range(len(dealerHand)):  #Start placing the dealer cards. Aside from the vertical position, this is idential to how the player cards were placed and drawn
         card = dealerHand[i]
         cardImage = None
         
@@ -154,7 +156,7 @@ def closeGameWindow():
     print("Closing player gui.")
     pygame.quit()
 
-def updateScreen(dealerHand, playerHand):
+def updateScreen(dealerHand, playerHand):  #Responsible for drawing the entire gui and calls all the related sub functions
     global screen
     pygame.event.pump()
 
@@ -163,7 +165,7 @@ def updateScreen(dealerHand, playerHand):
     drawCards(dealerHand, playerHand)
     pygame.display.flip()
 
-def getPlayerAction(dealerHand, playerHand):
+def getPlayerAction(dealerHand, playerHand):  #Used when it is the players turn to take an action and thus handles button clicks
     global hit_button
     global stand_button
     global exit_button
