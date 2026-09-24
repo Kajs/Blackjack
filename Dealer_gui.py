@@ -1,23 +1,48 @@
 import pygame
 import time
+from queue import Empty
 
 hit_button = None
 stand_button = None
 exit_button = None
 screen = None
 loadedImages = {}
+dealerHand = []
+playerHand = []
 
-def startGameWindow(width, height, framelimit):
+def startGameWindow(guiQueue, actionQueue, width, height, framelimit):
     global screen
+    global dealerHand
+    global playerHand
     
     pygame.init()
     screen = pygame.display.set_mode((width, height))
     clock = pygame.time.Clock()
-    clock.tick(framelimit)
-    #pygame.font.SysFont("test", 40)    
+    clock.tick(framelimit) 
     
     pygame.display.set_caption("Blackjack - DEALER")
-    updateScreen([], [], True)
+    updateScreen(dealerHand, playerHand)
+
+    running = True
+    while running:
+        try:
+            #print("Trying to fetch gui message") 
+            message = guiQueue.get_nowait()
+            #print("Dealer_gui message received:", message["type"]) 
+            if message["type"] == "REQUEST_ACTION":
+                #print("Dealer_gui: getting dealer action.") 
+                action = getDealerAction(dealerHand, playerHand)
+                actionQueue.put(action)
+            elif message["type"] == "UPDATE_HAND":
+                handType = message["handType"]
+                hand = message["hand"]
+                if handType == "DEALER":
+                    dealerHand = hand
+                elif handType == "PLAYER1":
+                    playerHand = hand
+                else: print("Player gui: unmatched hand type.")
+        except Empty: pass
+        updateScreen(dealerHand, playerHand)
 
 def drawButtons():
     global hit_button
@@ -64,7 +89,7 @@ def drawButtons():
     screen.blit(stand_text, stand_text.get_rect(center=stand_button.center))
     screen.blit(exit_text, exit_text.get_rect(center=exit_button.center))
     
-def drawCards(dealerHand, playerHand, faceDownMode):
+def drawCards(dealerHand, playerHand):
     global screen
     global loadedImages
     
@@ -90,11 +115,7 @@ def drawCards(dealerHand, playerHand, faceDownMode):
     cardWPos = center_x - (dealerCardWidth/2) * (len(dealerHand) - 1)
     cardHPos = screenHeight * dealerCardHDisplacement
     
-    for i in range(len(dealerHand)):
-        card = ""
-        if i == 0 and faceDownMode: card = "FD"
-        else: card = dealerHand[i]
-
+    for card in dealerHand:
         cardImage = None
         if card in loadedImages: cardImage = loadedImages[card]
         else:
@@ -108,9 +129,7 @@ def drawCards(dealerHand, playerHand, faceDownMode):
     cardWPos = center_x - (playerCardWidth/2) * (len(playerHand) - 1)
     cardHPos = screenHeight * playerCardHDisplacement
 
-    for i in range(len(playerHand)):
-        card = playerHand[i]
-
+    for card in playerHand:
         cardImage = None
         if card in loadedImages: cardImage = loadedImages[card]
         else:
@@ -124,13 +143,13 @@ def drawCards(dealerHand, playerHand, faceDownMode):
 def closeGameWindow():
     pygame.quit()
 
-def updateScreen(dealerHand, playerHand, faceDownMode):
+def updateScreen(dealerHand, playerHand):
     global screen
     pygame.event.pump()
     
     screen.fill("green")
     drawButtons()
-    drawCards(dealerHand, playerHand, faceDownMode)
+    drawCards(dealerHand, playerHand)
     pygame.display.flip()
 
 def getDealerAction(dealerHand, playerHand):
@@ -139,7 +158,7 @@ def getDealerAction(dealerHand, playerHand):
     global exit_button
     
     while True:
-        updateScreen(dealerHand, playerHand, False)
+        updateScreen(dealerHand, playerHand)
         for event in pygame.event.get():
             # Close the window
             if event.type == pygame.QUIT:

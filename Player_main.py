@@ -95,14 +95,15 @@ def main():
     clientActive = True
     guiQueue = multiprocessing.Queue()
     actionQueue = multiprocessing.Queue()
-    parseMessage(getMessage(), guiQueue, actionQueue) # Wait to receive player name, before starting gui
-    guiTitle = "Blackjack - " + myPlayerName
+
+    guiTitle = "Blackjack - PLAYER1" #preferred set by the server, but due to causing a deadlock from the servers action request, it's manual while only one player is supported
+    
     guiProcess = multiprocessing.Process(
         target=startGameWindow,
         args=(guiQueue, actionQueue, 400, 500, 60, guiTitle)
     )
-    #startGameWindow(400, 500, 60, "Blackjack - " + myPlayerName)
     guiProcess.start()
+
     while clientActive:
         clientActive = parseMessage(getMessage(), guiQueue, actionQueue)
 

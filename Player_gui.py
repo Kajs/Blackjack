@@ -1,5 +1,6 @@
 import pygame
 import time
+import traceback
 from queue import Empty
 
 hit_button = None
@@ -14,6 +15,7 @@ def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
     global screen
     global dealerHand
     global myHand
+    print("PLAYER GUI PROCESS STARTED")
     
     pygame.init()
     screen = pygame.display.set_mode((width, height))
@@ -21,14 +23,14 @@ def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
     clock.tick(framelimit)   
     
     pygame.display.set_caption(title)
-    #updateScreen(dealerHand, myHand)
+    updateScreen(dealerHand, myHand)
 
     running = True
     while running:
         try:
             #print("Trying to fetch gui message") 
             message = guiQueue.get_nowait()
-            print("Gui message received") 
+            print("Gui message received:", message["type"]) 
             if message["type"] == "REQUEST_ACTION":
                 print("Gui: getting player action.") 
                 action = getPlayerAction(dealerHand, myHand)
@@ -42,8 +44,6 @@ def startGameWindow(guiQueue, actionQueue, width, height, framelimit, title):
                     myHand = hand
                 else: print("Player gui: unmatched hand type.")
         except Empty: pass
-            #print("Empty gui queue, moving on.")
-            #time.sleep(2)
         updateScreen(dealerHand, myHand)
 
 def drawButtons():
@@ -182,4 +182,3 @@ def getPlayerAction(dealerHand, playerHand):
                 if exit_button.collidepoint(event.pos):
                     print ("exit button hit")
                     return "QUIT"
-    
